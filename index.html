@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Анти ИИ | Зарядка</title>
+<title>Anti-AI Battery Shield</title>
 <link rel="icon" href="favicon.ico" type="image/x-icon">
 <style>
 :root {
@@ -14,76 +14,51 @@
   --font: monospace; --radius: 12px; --transition: 0.2s ease;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  margin: 0; background: var(--bg); font-family: var(--font); color: var(--text);
-  overflow-x: hidden; touch-action: manipulation;
-}
-#app {
-  max-width: 600px; margin: 0 auto; padding: 16px; min-height: 100vh;
-  background: var(--surface); backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.08);
-  display: flex; flex-direction: column; gap: 16px;
-  position: relative; z-index: 2;
-}
+body { margin: 0; background: var(--bg); font-family: var(--font); color: var(--text); overflow-x: hidden; touch-action: manipulation; }
+#app { max-width: 600px; margin: 0 auto; padding: 16px; min-height: 100vh; background: var(--surface); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 16px; position: relative; z-index: 2; }
 
-/* === HEADER === */
-header { text-align: center; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); }
-header h1 {
-  font-size: 1.4rem; background: linear-gradient(90deg, var(--accent), #0088ff);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-}
-header h1 img { width: 28px; height: 28px; filter: drop-shadow(0 0 6px var(--accent-glow)); animation: float 4s ease-in-out infinite; }
+/* HEADER & LANG TOGGLE */
+header { text-align: center; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); position: relative; }
+header h1 { font-size: 1.3rem; background: linear-gradient(90deg, var(--accent), #0088ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
+header h1 img { width: 26px; height: 26px; filter: drop-shadow(0 0 6px var(--accent-glow)); animation: float 4s ease-in-out infinite; }
 @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-3px)} }
+#langBtn { position: absolute; top: 0; right: 0; padding: 6px 10px; font-size: 0.75rem; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: var(--text); cursor: pointer; }
+#langBtn:hover { background: var(--accent); color: #000; }
 
-/* === NEON STRESS CANVAS === */
-#canvas-wrap {
-  position: relative; width: 100%; aspect-ratio: 16/9;
-  border-radius: var(--radius); overflow: hidden; border: 1px solid rgba(255,255,255,0.1);
-  background: #000; box-shadow: inset 0 0 40px rgba(0,0,0,0.6);
-}
+/* CANVAS & DISPLAY */
+#canvas-wrap { position: relative; width: 100%; aspect-ratio: 16/9; border-radius: var(--radius); overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #000; box-shadow: inset 0 0 40px rgba(0,0,0,0.6); }
 #stressCanvas { width: 100%; height: 100%; display: block; }
-#batteryBig {
-  position: absolute; inset: 0; display: flex; flex-direction: column;
-  justify-content: center; align-items: center; pointer-events: none;
-}
+#batteryBig { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; pointer-events: none; }
 #levelNum { font-size: 4.5rem; font-weight: 900; text-shadow: 0 0 25px var(--safe); transition: color 0.3s, text-shadow 0.3s; }
-#statusText { font-size: 0.9rem; color: var(--muted); margin-top: 4px; }
+#statusText { font-size: 0.85rem; color: var(--muted); margin-top: 4px; text-align: center; padding: 0 10px; }
 
-/* === CONTROLS === */
+/* CONTROLS */
 .controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-button, select, input {
-  padding: 10px; border: none; border-radius: 8px; font-family: var(--font);
-  background: linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
-  color: var(--text); border: 1px solid rgba(255,255,255,0.15); cursor: pointer; transition: var(--transition);
-}
+button, select, input { padding: 10px; border: none; border-radius: 8px; font-family: var(--font); background: linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)); color: var(--text); border: 1px solid rgba(255,255,255,0.15); cursor: pointer; transition: var(--transition); }
 button:hover { transform: translateY(-2px); border-color: var(--accent); box-shadow: 0 4px 15px var(--accent-glow); }
 button:active { transform: translateY(1px); }
 button.primary { background: linear-gradient(145deg, rgba(0,255,170,0.2), rgba(0,255,170,0.05)); border-color: var(--accent); color: var(--accent); font-weight: bold; }
 button.danger { background: linear-gradient(145deg, rgba(255,0,85,0.15), rgba(255,0,85,0.05)); border-color: var(--danger); color: var(--danger); }
 button.full { grid-column: span 2; }
 
-/* === SLIDER & MANUAL === */
+/* MANUAL PANEL */
 .manual-panel { background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; display: none; }
 .manual-panel.active { display: block; }
 input[type="range"] { width: 100%; accent-color: var(--accent); height: 8px; }
 .label-row { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
 
-/* === AUDIO INIT === */
-.audio-btn {
-  background: var(--warn); color: #000; font-weight: bold; padding: 8px; border-radius: 8px;
-  text-align: center; cursor: pointer; margin-bottom: 8px; display: flex; justify-content: center; align-items: center; gap: 6px;
-}
+/* AUDIO INIT */
+.audio-btn { background: var(--warn); color: #000; font-weight: bold; padding: 8px; border-radius: 8px; text-align: center; cursor: pointer; margin-bottom: 8px; display: flex; justify-content: center; align-items: center; gap: 6px; }
 .audio-btn.hidden { display: none; }
 
-/* === DETAILS & CALCULATOR === */
+/* DETAILS & CALCULATOR */
 details { border-top: 1px solid rgba(255,255,255,0.08); padding-top: 10px; }
 details summary { cursor: pointer; color: var(--accent); font-weight: 600; user-select: none; }
 details[open] summary { color: #fff; text-shadow: 0 0 10px var(--accent-glow); }
 .tool-card { background: rgba(0,0,0,0.25); padding: 12px; border-radius: 10px; margin-top: 8px; border: 1px solid rgba(255,255,255,0.08); }
 canvas.graph { width: 100%; height: 80px; margin-top: 8px; background: rgba(255,255,255,0.02); border-radius: 6px; }
 
-/* === SUPPORT === */
+/* SUPPORT */
 .support { text-align: center; padding: 14px; background: linear-gradient(135deg, rgba(0,255,170,0.1), rgba(0,136,255,0.1)); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); margin-top: auto; }
 .support h3 { color: var(--accent); margin-bottom: 8px; }
 .support p { font-size: 0.85rem; color: var(--muted); margin-bottom: 6px; }
@@ -91,10 +66,9 @@ canvas.graph { width: 100%; height: 80px; margin-top: 8px; background: rgba(255,
 .catalog-link { color: #0088ff; text-decoration: none; font-weight: bold; display: block; margin-top: 4px; }
 footer { text-align: center; color: var(--muted); font-size: 0.7rem; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.08); }
 
-/* === GLITCH ANIMATION === */
+/* GLITCH ANIMATION */
 .glitch-active { animation: shake 0.3s infinite; }
 @keyframes shake { 0%{transform:translate(0,0)} 25%{transform:translate(-2px,1px)} 50%{transform:translate(2px,-1px)} 75%{transform:translate(-1px,-2px)} 100%{transform:translate(0,0)} }
-
 @media(max-width:400px){ #levelNum{font-size:3.5rem} .controls{grid-template-columns:1fr} button.full{grid-column:span 1} }
 </style>
 </head>
@@ -102,93 +76,163 @@ footer { text-align: center; color: var(--muted); font-size: 0.7rem; padding-top
 
 <main id="app">
   <header>
-    <h1><img src="favicon.ico" alt="🔋" onerror="this.style.display='none'"> АНТИ ИИ ЗАРЯДКА</h1>
-    <p style="font-size:0.8rem; color:var(--muted); margin-top:4px;">Автономия. 10–90%. Без облаков.</p>
+    <h1><img src="favicon.ico" alt="🔋" onerror="this.style.display='none'"> <span data-i18n="title">АНТИ ИИ ЗАРЯДКА</span></h1>
+    <p style="font-size:0.8rem; color:var(--muted); margin-top:4px;" data-i18n="subtitle">Автономия. 10–90%. Без облаков.</p>
+    <button id="langBtn" onclick="toggleLang()">🌐 EN</button>
   </header>
 
-  <div id="audioInit" class="audio-btn" onclick="initAudio()">🔊 НАЖМИТЕ ДЛЯ ВКЛЮЧЕНИЯ ЗВУКА</div>
+  <div id="audioInit" class="audio-btn" onclick="initAudio()" data-i18n="audioBtn">🔊 НАЖМИТЕ ДЛЯ ВКЛЮЧЕНИЯ ЗВУКА</div>
 
   <!-- 🎨 НЕОНОВЫЙ СТРЕСС-ХОЛСТ -->
   <div id="canvas-wrap">
     <canvas id="stressCanvas"></canvas>
     <div id="batteryBig">
       <span id="levelNum">--%</span>
-      <span id="statusText">Ожидание подключения...</span>
+      <span id="statusText" data-i18n="wait">Ожидание подключения...</span>
     </div>
   </div>
 
   <!-- УПРАВЛЕНИЕ -->
   <div class="controls">
-    <button class="primary full" onclick="toggleMonitoring()">🔄 МОНИТОРИНГ: ВКЛ</button>
-    <button onclick="toggleManual()">📝 РУЧНОЙ ВВОД</button>
-    <button class="danger" onclick="stopAlarms()">🔇 ВЫКЛЮЧИТЬ СИГНАЛ</button>
+    <button class="primary full" onclick="toggleMonitoring()" data-i18n="monitoringOn">🔄 МОНИТОРИНГ: ВКЛ</button>
+    <button onclick="toggleManual()" data-i18n="manual">📝 РУЧНОЙ ВВОД</button>
+    <button class="danger" onclick="stopAlarms()" data-i18n="mute">🔇 ВЫКЛЮЧИТЬ СИГНАЛ</button>
   </div>
 
   <!-- РУЧНОЙ ВВОД (Фолбэк) -->
   <div id="manualPanel" class="manual-panel">
-    <div class="label-row"><span>Заряд</span><span id="manualVal">50%</span></div>
+    <div class="label-row"><span data-i18n="manualLevel">Заряд</span><span id="manualVal">50%</span></div>
     <input type="range" id="manualSlider" min="0" max="100" value="50" oninput="updateManual(this.value)">
-    <div class="label-row" style="margin-top:8px;"><span>⚡ Статус</span><span id="manualCharging">Разрядка</span></div>
-    <button class="full" style="margin-top:8px;" onclick="toggleManualCharge()">Переключить зарядку</button>
+    <div class="label-row" style="margin-top:8px;"><span data-i18n="manualStatus">⚡ Статус</span><span id="manualCharging" data-i18n="discharging">Разрядка</span></div>
+    <button class="full" style="margin-top:8px;" onclick="toggleManualCharge()" data-i18n="toggleCharge">Переключить зарядку</button>
   </div>
 
   <!-- 📊 ОФЛАЙН-КАЛЬКУЛЯТОР -->
   <details>
-    <summary>📊 ЗДОРОВЬЕ БАТАРЕИ & СТАТИСТИКА</summary>
+    <summary data-i18n="healthTitle">📊 ЗДОРОВЬЕ БАТАРЕИ & СТАТИСТИКА</summary>
     <div class="tool-card">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <span style="font-size:0.9rem;">📉 Износ: <b id="wearScore" style="color:var(--safe)">0%</b></span>
-        <span style="font-size:0.8rem; color:var(--muted);">💡 Сэкономлено: <b id="savedCycles">0</b> циклов</span>
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
+        <span style="font-size:0.9rem;" data-i18n="wearLabel">📉 Износ: <b id="wearScore" style="color:var(--safe)">0%</b></span>
+        <span style="font-size:0.8rem; color:var(--muted);" data-i18n="savedLabel">💡 Сэкономлено: <b id="savedCycles">0</b> циклов</span>
       </div>
       <canvas id="healthGraph" class="graph"></canvas>
-      <p style="font-size:0.75rem; color:var(--muted); margin-top:6px;">Данные хранятся только в вашем браузере. Никакой телеметрии.</p>
+      <p style="font-size:0.75rem; color:var(--muted); margin-top:6px;" data-i18n="privacyNote">Данные хранятся только в вашем браузере. Никакой телеметрии.</p>
     </div>
   </details>
 
   <!-- 🧱 УМНЫЙ ДОМ (WEBHOOK) -->
   <details>
-    <summary>🧱 ИНТЕГРАЦИЯ «УМНЫЙ ДОМ» (WEBHOOK)</summary>
+    <summary data-i18n="smartHome">🧱 ИНТЕГРАЦИЯ «УМНЫЙ ДОМ» (WEBHOOK)</summary>
     <div class="tool-card">
-      <p style="font-size:0.8rem; color:var(--muted); margin-bottom:6px;">Отправит POST-запрос при достижении 90% для отключения розетки.</p>
+      <p style="font-size:0.8rem; color:var(--muted); margin-bottom:6px;" data-i18n="webhookDesc">Отправит POST-запрос при достижении 90% для отключения розетки.</p>
       <input type="url" id="webhookUrl" placeholder="https://api.tuya.com/v1.0/webhook/..." style="margin-bottom:6px;">
       <div class="label-row"><label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
-        <input type="checkbox" id="webhookActive"> Активировать Webhook
+        <input type="checkbox" id="webhookActive" data-i18n="activateLabel"> <span data-i18n="activate">Активировать Webhook</span>
       </label></div>
-      <button class="full" style="margin-top:8px;" onclick="saveWebhook()">💾 Сохранить настройки</button>
+      <button class="full" style="margin-top:8px;" onclick="saveWebhook()" data-i18n="save">💾 Сохранить настройки</button>
     </div>
   </details>
 
   <!-- 📚 ОБУЧЕНИЕ -->
   <details>
-    <summary>📚 ПОЧЕМУ 10–90%?</summary>
+    <summary data-i18n="whyTitle">📚 ПОЧЕМУ 10–90%?</summary>
     <div class="tool-card" style="font-size:0.85rem; line-height:1.5;">
-      <p>🔋 Литий-ионные аккумуляторы стареют от <b>высокого напряжения</b> (>90%) и <b>глубокого разряда</b> (<10%).</p>
-      <p>⚡ Поддержание в диапазоне 10–90% снижает химическую деградацию катода в 3–4 раза.</p>
-      <p>📉 4 полуцикла 20→80% = 1 полный 0→100%, но износ <b>в разы ниже</b>.</p>
+      <p data-i18n="whyText1">🔋 Литий-ионные аккумуляторы стареют от высокого напряжения (>90%) и глубокого разряда (<10%).</p>
+      <p data-i18n="whyText2" style="margin-top:6px;">⚡ Поддержание в диапазоне 10–90% снижает химическую деградацию катода в 3–4 раза.</p>
+      <p data-i18n="whyText3" style="margin-top:6px;">📉 4 полуцикла 20→80% = 1 полный 0→100%, но износ в разы ниже.</p>
     </div>
   </details>
 
   <!-- ПОДДЕРЖКА -->
   <section class="support">
-    <h3>🤝 ПОДДЕРЖАТЬ ПРОЕКТ 💙</h3>
-    <p>Приложение бесплатное. Было и останется.<br>Поддержка разработки: <span id="phoneNum" style="color:var(--accent); font-weight:bold;">8-920-227-56-76</span></p>
-    <a href="https://ancf-hue.github.io/" target="_blank" class="catalog-link">🌟 Каталог Anti-AI Shield</a>
+    <h3 data-i18n="supportTitle">🤝 ПОДДЕРЖАТЬ ПРОЕКТ 💙</h3>
+    <p data-i18n="supportText">Приложение бесплатное. Было и останется.<br>Поддержка разработки:</p>
+    <div class="phone-box"><span id="phoneNum" style="color:var(--accent); font-weight:bold;">8-920-227-56-76</span></div>
+    <a href="https://ancf-hue.github.io/" target="_blank" class="catalog-link" data-i18n="catalog">🌟 Каталог Anti-AI Shield</a>
   </section>
 
-  <footer>Анти ИИ | 100% офлайн | Данные не покидают устройство</footer>
+  <footer data-i18n="footer">Анти ИИ | 100% офлайн | Данные не покидают устройство</footer>
 </main>
 
 <script>
-// === КОНФИГУРАЦИЯ ===
-const CONFIG = {
-  lowThreshold: 10, highThreshold: 90,
-  checkInterval: 15000, // 15 сек
-  maxHistory: 100
+// === I18N DICTIONARY ===
+const i18n = {
+  ru: {
+    title: "АНТИ ИИ ЗАРЯДКА", subtitle: "Автономия. 10–90%. Без облаков.",
+    audioBtn: "🔊 НАЖМИТЕ ДЛЯ ВКЛЮЧЕНИЯ ЗВУКА",
+    monitoringOn: "🔄 МОНИТОРИНГ: ВКЛ", monitoringOff: "⏸ МОНИТОРИНГ: ВЫКЛ",
+    manual: "📝 РУЧНОЙ ВВОД", mute: "🔇 ВЫКЛЮЧИТЬ СИГНАЛ",
+    charging: "⚡ Зарядка", discharging: "🔋 Разрядка",
+    wait: "Ожидание подключения...",
+    criticalLowCharging: "⚡ КРИТИЧЕСКИ НИЗКИЙ. ЗАРЯЖАЕТСЯ.",
+    criticalLow: "🔴 КРИТИЧЕСКИ НИЗКИЙ. ПОДКЛЮЧИТЕ ЗАРЯДКУ!",
+    almostFull: "🟡 ПОЧТИ ПОЛНАЯ. ОТКЛЮЧИТЕ КАБЕЛЬ!",
+    optimal: "🟢 ОПТИМАЛЬНЫЙ РЕЖИМ РАБОТЫ",
+    safeCharging: "⚡ Зарядка в безопасной зоне",
+    healthTitle: "📊 ЗДОРОВЬЕ БАТАРЕИ & СТАТИСТИКА",
+    wearLabel: "📉 Износ:", savedLabel: "💡 Сэкономлено:", cycles: "циклов",
+    privacyNote: "Данные хранятся только в вашем браузере. Никакой телеметрии.",
+    smartHome: "🧱 ИНТЕГРАЦИЯ «УМНЫЙ ДОМ» (WEBHOOK)",
+    webhookDesc: "Отправит POST-запрос при достижении 90% для отключения розетки.",
+    activate: "Активировать Webhook", save: "💾 Сохранить настройки", savedSettings: "✅ Настройки сохранены локально.",
+    whyTitle: "📚 ПОЧЕМУ 10–90%?",
+    whyText1: "🔋 Литий-ионные аккумуляторы стареют от высокого напряжения (>90%) и глубокого разряда (<10%).",
+    whyText2: "⚡ Поддержание в диапазоне 10–90% снижает химическую деградацию катода в 3–4 раза.",
+    whyText3: "📉 4 полуцикла 20→80% = 1 полный 0→100%, но износ в разы ниже.",
+    supportTitle: "🤝 ПОДДЕРЖАТЬ ПРОЕКТ 💙", supportText: "Приложение бесплатное. Было и останется.<br>Поддержка разработки:",
+    catalog: "🌟 Каталог Anti-AI Shield", footer: "Анти ИИ | 100% офлайн | Данные не покидают устройство",
+    manualLevel: "Заряд", manualStatus: "⚡ Статус", toggleCharge: "Переключить зарядку"
+  },
+  en: {
+    title: "ANTI-AI BATTERY SHIELD", subtitle: "Autonomy. 10–90%. Zero clouds.",
+    audioBtn: "🔊 TAP TO ENABLE AUDIO",
+    monitoringOn: "🔄 MONITORING: ON", monitoringOff: "⏸ MONITORING: OFF",
+    manual: "📝 MANUAL INPUT", mute: "🔇 MUTE ALARM",
+    charging: "⚡ Charging", discharging: "🔋 Discharging",
+    wait: "Waiting for connection...",
+    criticalLowCharging: "⚡ CRITICALLY LOW. CHARGING.",
+    criticalLow: "🔴 CRITICALLY LOW. PLUG IN NOW!",
+    almostFull: "🟡 ALMOST FULL. UNPLUG CABLE!",
+    optimal: "🟢 OPTIMAL OPERATING MODE",
+    safeCharging: "⚡ Safe charging zone",
+    healthTitle: "📊 BATTERY HEALTH & STATS",
+    wearLabel: "📉 Wear:", savedLabel: "💡 Saved:", cycles: "cycles",
+    privacyNote: "Data stored locally in your browser. Zero telemetry.",
+    smartHome: "🧱 SMART HOME INTEGRATION (WEBHOOK)",
+    webhookDesc: "Sends a POST request at 90% to cut off smart plug power.",
+    activate: "Activate Webhook", save: "💾 Save Settings", savedSettings: "✅ Settings saved locally.",
+    whyTitle: "📚 WHY 10–90%?",
+    whyText1: "🔋 Li-ion batteries degrade faster at high voltage (>90%) and deep discharge (<10%).",
+    whyText2: "⚡ Keeping charge between 10–90% reduces chemical cathode degradation by 3–4x.",
+    whyText3: "📉 4 half-cycles 20→80% = 1 full 0→100%, but with drastically less wear.",
+    supportTitle: "🤝 SUPPORT PROJECT 💙", supportText: "Free forever. Was and will be.<br>Support development:",
+    catalog: "🌟 Anti-AI Shield Catalog", footer: "Anti-AI | 100% Offline | Data Never Leaves Device",
+    manualLevel: "Level", manualStatus: "⚡ Status", toggleCharge: "Toggle Charging"
+  }
 };
 
-let audioCtx = null, alarmOsc = null, alarmGain = null, isAlarmOn = false;
+// === STATE & CONFIG ===
+let currentLang = localStorage.getItem('antiAI_lang') || 'ru';
+const CONFIG = { lowThreshold: 10, highThreshold: 90, checkInterval: 15000, maxHistory: 100 };
+let audioCtx = null, alarmOsc = null, isAlarmOn = false;
 let monitoring = true, battery = null, manualMode = false;
 let currentLevel = 50, isCharging = false, webhookTriggered = false;
+
+// === LANGUAGE SYSTEM ===
+function applyLang() {
+  document.documentElement.lang = currentLang;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if(i18n[currentLang][key]) el.innerHTML = i18n[currentLang][key];
+  });
+  document.getElementById('langBtn').textContent = currentLang === 'ru' ? '🌐 EN' : '🌐 RU';
+  updateUI(); // Refresh dynamic strings
+}
+function toggleLang() {
+  currentLang = currentLang === 'ru' ? 'en' : 'ru';
+  localStorage.setItem('antiAI_lang', currentLang);
+  applyLang();
+}
 
 // === 🎵 AUDIO ENGINE ===
 function initAudio() {
@@ -196,42 +240,36 @@ function initAudio() {
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   document.getElementById('audioInit').classList.add('hidden');
 }
-
 function playAlarm(type) {
   if (!audioCtx || isAlarmOn) return;
   isAlarmOn = true;
   alarmOsc = audioCtx.createOscillator();
-  alarmGain = audioCtx.createGain();
+  const gain = audioCtx.createGain();
   const lfo = audioCtx.createOscillator();
   const lfoGain = audioCtx.createGain();
+  alarmOsc.connect(gain); gain.connect(audioCtx.destination);
+  lfo.connect(lfoGain); lfoGain.connect(gain.gain);
 
-  alarmOsc.connect(alarmGain); alarmGain.connect(audioCtx.destination);
-  lfo.connect(lfoGain); lfoGain.connect(alarmGain.gain);
-
-  if (type === 'high') { // 90%: Неоновый писк
+  if (type === 'high') {
     alarmOsc.type = 'square'; alarmOsc.frequency.setValueAtTime(1400, audioCtx.currentTime);
-    lfo.frequency.value = 8; lfoGain.gain.value = 0.25; alarmGain.gain.value = 0.15;
-  } else { // 10%: Басовый набат
+    lfo.frequency.value = 8; lfoGain.gain.value = 0.25; gain.gain.value = 0.15;
+  } else {
     alarmOsc.type = 'sawtooth'; alarmOsc.frequency.setValueAtTime(90, audioCtx.currentTime);
-    lfo.frequency.value = 4; lfoGain.gain.value = 0.3; alarmGain.gain.value = 0.2;
+    lfo.frequency.value = 4; lfoGain.gain.value = 0.3; gain.gain.value = 0.2;
   }
-
   alarmOsc.start(); lfo.start();
   document.getElementById('canvas-wrap').classList.add('glitch-active');
 }
-
 function stopAlarms() {
   if (alarmOsc) { alarmOsc.stop(); alarmOsc = null; }
-  if (alarmGain) alarmGain.disconnect();
   isAlarmOn = false;
   document.getElementById('canvas-wrap').classList.remove('glitch-active');
 }
 
-// === 🎨 CANVAS RENDERER (НЕОНОВЫЙ ХОЛСТ) ===
+// === 🎨 CANVAS RENDERER ===
 const canvas = document.getElementById('stressCanvas');
 const ctx = canvas.getContext('2d');
 let particles = [];
-
 function resizeCanvas() {
   const wrap = document.getElementById('canvas-wrap');
   canvas.width = wrap.clientWidth * (window.devicePixelRatio || 1);
@@ -244,36 +282,20 @@ function drawCanvas() {
   const w = canvas.width / (window.devicePixelRatio||1);
   const h = canvas.height / (window.devicePixelRatio||1);
   ctx.clearRect(0,0,w,h);
-
-  // Цвет фона в зависимости от зоны
   let color = '#00ffaa', glow = 'rgba(0,255,170,0.15)';
-  if (currentLevel <= CONFIG.lowThreshold || currentLevel >= CONFIG.highThreshold) {
-    color = '#ff0055'; glow = 'rgba(255,0,85,0.25)';
-  } else if (currentLevel <= 20 || currentLevel >= 80) {
-    color = '#ffaa00'; glow = 'rgba(255,170,0,0.15)';
-  }
+  if (currentLevel <= CONFIG.lowThreshold || currentLevel >= CONFIG.highThreshold) { color = '#ff0055'; glow = 'rgba(255,0,85,0.25)'; }
+  else if (currentLevel <= 20 || currentLevel >= 80) { color = '#ffaa00'; glow = 'rgba(255,170,0,0.15)'; }
 
-  // Градиент неона
   const grad = ctx.createRadialGradient(w/2, h/2, 10, w/2, h/2, w*0.6);
   grad.addColorStop(0, glow); grad.addColorStop(1, 'transparent');
   ctx.fillStyle = grad; ctx.fillRect(0,0,w,h);
 
-  // Частицы
   if (particles.length < 40) particles.push({x:Math.random()*w, y:Math.random()*h, s:Math.random()*2+1, vx:(Math.random()-0.5)*1, vy:(Math.random()-0.5)*1});
   ctx.fillStyle = color;
-  particles.forEach(p => {
-    p.x += p.vx; p.y += p.vy;
-    if(p.x<0)p.x=w; if(p.x>w)p.x=0; if(p.y<0)p.y=h; if(p.y>h)p.y=0;
-    ctx.beginPath(); ctx.arc(p.x,p.y,p.s,0,Math.PI*2); ctx.fill();
-  });
+  particles.forEach(p => { p.x+=p.vx; p.y+=p.vy; if(p.x<0)p.x=w; if(p.x>w)p.x=0; if(p.y<0)p.y=h; if(p.y>h)p.y=0; ctx.beginPath(); ctx.arc(p.x,p.y,p.s,0,Math.PI*2); ctx.fill(); });
 
-  // Глитч-линии при тревоге
   if (isAlarmOn) {
-    for(let i=0; i<6; i++){
-      ctx.strokeStyle = `rgba(255,255,255,${Math.random()*0.6})`;
-      ctx.lineWidth = Math.random()*3;
-      ctx.beginPath(); ctx.moveTo(0, Math.random()*h); ctx.lineTo(w, Math.random()*h); ctx.stroke();
-    }
+    for(let i=0; i<6; i++){ ctx.strokeStyle = `rgba(255,255,255,${Math.random()*0.6})`; ctx.lineWidth = Math.random()*3; ctx.beginPath(); ctx.moveTo(0, Math.random()*h); ctx.lineTo(w, Math.random()*h); ctx.stroke(); }
   }
   requestAnimationFrame(drawCanvas);
 }
@@ -287,53 +309,44 @@ async function initBattery() {
       battery.addEventListener('chargingchange', update);
       battery.addEventListener('levelchange', update);
       update(); return true;
-    } catch(e) { console.log("Battery API blocked, fallback active"); }
+    } catch(e) { console.log("Battery API blocked"); }
   }
   return false;
 }
-
 function update() {
-  if (battery) {
-    currentLevel = Math.round(battery.level * 100);
-    isCharging = battery.charging;
-  }
+  if (battery) { currentLevel = Math.round(battery.level * 100); isCharging = battery.charging; }
   updateUI();
 }
-
-function updateManual(val) {
-  currentLevel = parseInt(val);
-  document.getElementById('manualVal').textContent = val + '%';
-  updateUI();
-}
-function toggleManualCharge() { isCharging = !isCharging; document.getElementById('manualCharging').textContent = isCharging ? '⚡ Зарядка' : '🔋 Разрядка'; updateUI(); }
-function toggleManual() { document.getElementById('manualPanel').classList.toggle('active'); }
+function updateManual(val) { currentLevel = parseInt(val); document.getElementById('manualVal').textContent = val + '%'; updateUI(); }
+function toggleManualCharge() { isCharging = !isCharging; updateUI(); }
+function toggleManual() { document.getElementById('manualPanel').classList.toggle('active'); manualMode = document.getElementById('manualPanel').classList.contains('active'); }
 
 function updateUI() {
   const numEl = document.getElementById('levelNum');
   const statEl = document.getElementById('statusText');
-  numEl.textContent = currentLevel + '%';
-  numEl.style.color = currentLevel<=CONFIG.lowThreshold || currentLevel>=CONFIG.highThreshold ? 'var(--danger)' : currentLevel<=20||currentLevel>=80 ? 'var(--warn)' : 'var(--safe)';
+  const manStat = document.getElementById('manualCharging');
   
-  let status = '';
-  if (currentLevel <= CONFIG.lowThreshold) status = isCharging ? '⚡ КРИТИЧЕСКИ НИЗКИЙ. ЗАРЯЖАЕТСЯ.' : '🔴 КРИТИЧЕСКИ НИЗКИЙ. ПОДКЛЮЧИТЕ ЗАРЯДКУ!';
-  else if (currentLevel >= CONFIG.highThreshold) status = isCharging ? '🟡 ПОЧТИ ПОЛНАЯ. ОТКЛЮЧИТЕ КАБЕЛЬ!' : '🟢 ОПТИМАЛЬНЫЙ УРОВЕНЬ.';
-  else status = isCharging ? '⚡ Зарядка в безопасной зоне' : '🟢 Оптимальный режим работы';
+  numEl.textContent = currentLevel + '%';
+  numEl.style.color = (currentLevel <= CONFIG.lowThreshold || currentLevel >= CONFIG.highThreshold) ? 'var(--danger)' : (currentLevel <= 20 || currentLevel >= 80) ? 'var(--warn)' : 'var(--safe)';
+  
+  manStat.textContent = isCharging ? i18n[currentLang].charging : i18n[currentLang].discharging;
+  
+  let status = i18n[currentLang].wait;
+  if (currentLevel <= CONFIG.lowThreshold) status = isCharging ? i18n[currentLang].criticalLowCharging : i18n[currentLang].criticalLow;
+  else if (currentLevel >= CONFIG.highThreshold) status = isCharging ? i18n[currentLang].almostFull : i18n[currentLang].optimal;
+  else status = isCharging ? i18n[currentLang].safeCharging : i18n[currentLang].optimal;
   statEl.textContent = status;
 
-  // Логика оповещений
   if (monitoring && !isAlarmOn) {
     if (currentLevel <= CONFIG.lowThreshold && !isCharging) playAlarm('low');
     else if (currentLevel >= CONFIG.highThreshold && isCharging) { playAlarm('high'); triggerWebhook(); }
-    else { stopAlarms(); }
+    else stopAlarms();
   }
-
-  // Обновление калькулятора
   logHistory(); drawHealthGraph();
 }
-
 function toggleMonitoring() {
   monitoring = !monitoring;
-  document.querySelector('.controls button').textContent = monitoring ? '🔄 МОНИТОРИНГ: ВКЛ' : '⏸ МОНИТОРИНГ: ВЫКЛ';
+  document.querySelector('.controls button').textContent = monitoring ? i18n[currentLang].monitoringOn : i18n[currentLang].monitoringOff;
   if(!monitoring) stopAlarms();
 }
 
@@ -342,17 +355,15 @@ function logHistory() {
   const hist = JSON.parse(localStorage.getItem('antiAI_battHist') || '[]');
   const now = Date.now();
   const last = hist[hist.length-1];
-  if (!last || now - last.time > 60000) { // запись раз в минуту
+  if (!last || now - last.time > 60000) {
     hist.push({ level: currentLevel, charging: isCharging, time: now });
     if (hist.length > CONFIG.maxHistory) hist.shift();
     localStorage.setItem('antiAI_battHist', JSON.stringify(hist));
   }
 }
-
 function calcWear() {
   const hist = JSON.parse(localStorage.getItem('antiAI_battHist') || '[]');
   if (hist.length < 5) return { wear: 0, saved: 0 };
-  
   let wearPoints = 0, saved = 0;
   for (const h of hist) {
     if (h.level < 10 || h.level > 90) wearPoints += 2;
@@ -361,17 +372,14 @@ function calcWear() {
   }
   return { wear: Math.min(100, Math.round((wearPoints/hist.length)*50)), saved };
 }
-
 function drawHealthGraph() {
   const hist = JSON.parse(localStorage.getItem('antiAI_battHist') || '[]');
   const c = document.getElementById('healthGraph');
   const gCtx = c.getContext('2d');
   c.width = c.clientWidth * 2; c.height = c.clientHeight * 2; gCtx.scale(2,2);
   gCtx.clearRect(0,0,c.width/2,c.height/2);
-  
   const data = hist.slice(-30).map(h=>h.level);
   if(data.length<2) return;
-  
   gCtx.strokeStyle = 'var(--accent)'; gCtx.lineWidth = 2;
   gCtx.beginPath();
   data.forEach((v,i) => {
@@ -380,38 +388,33 @@ function drawHealthGraph() {
     i===0 ? gCtx.moveTo(x,y) : gCtx.lineTo(x,y);
   });
   gCtx.stroke();
-  
   const w = calcWear();
   document.getElementById('wearScore').textContent = w.wear + '%';
   document.getElementById('wearScore').style.color = w.wear > 60 ? 'var(--danger)' : 'var(--safe)';
-  document.getElementById('savedCycles').textContent = w.saved;
+  document.getElementById('savedCycles').textContent = w.saved + ' ' + i18n[currentLang].cycles;
 }
 
-// === 🧱 WEBHOOK INTEGRATION ===
+// === 🧱 WEBHOOK ===
 function triggerWebhook() {
   if (webhookTriggered) return;
   const active = document.getElementById('webhookActive').checked;
   const url = document.getElementById('webhookUrl').value.trim();
   if (!active || !url) return;
-
   webhookTriggered = true;
-  fetch(url, {
-    method: 'POST', headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({action: 'cut_power', battery: currentLevel, source: 'anti-ai-shield'})
-  }).catch(e => console.log('Webhook failed:', e));
-  setTimeout(() => webhookTriggered = false, 300000); // кулдаун 5 мин
+  fetch(url, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({action:'cut_power', battery:currentLevel, source:'anti-ai-shield'}) }).catch(()=>{});
+  setTimeout(()=>webhookTriggered=false, 300000);
 }
 function saveWebhook() {
   localStorage.setItem('antiAI_webhookUrl', document.getElementById('webhookUrl').value);
   localStorage.setItem('antiAI_webhookActive', document.getElementById('webhookActive').checked);
-  alert('✅ Настройки сохранены локально.');
+  alert(i18n[currentLang].savedSettings);
 }
 
 // === INIT ===
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('webhookUrl').value = localStorage.getItem('antiAI_webhookUrl') || '';
   document.getElementById('webhookActive').checked = localStorage.getItem('antiAI_webhookActive') === 'true';
-  
+  applyLang();
   initBattery().then(supported => { if(!supported) toggleManual(); });
   update();
   setInterval(update, CONFIG.checkInterval);
